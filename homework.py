@@ -10,13 +10,17 @@ from dotenv import load_dotenv
 
 logging.basicConfig(
     level=logging.DEBUG,
-    filename='telegram_bot.log', 
+    filename='telegram_bot.log',
     format='%(asctime)s, %(levelname)s, %(message)s, %(name)s',
     filemode='w'
 )
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
-handler = RotatingFileHandler('telegram_bot.log', maxBytes=50000000, backupCount=5)
+handler = RotatingFileHandler(
+    'telegram_bot.log',
+    maxBytes=50000000,
+    backupCount=5,
+)
 logger.addHandler(handler)
 
 
