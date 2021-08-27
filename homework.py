@@ -45,8 +45,8 @@ def parse_homework_status(homework):
     homework_name = homework.get("homework_name")
     homework_status = homework.get('status')
     statuses = {
-        'rejected': 'К сожалению в работе нашлись ошибки.',
-        'reviewing': 'Работа взята в ревью.',
+        'reviewing': 'Проект на ревью.',
+        'rejected': 'К сожалению, в работе нашлись ошибки.',
         'approved': 'Ревьюеру всё понравилось, работа зачтена!'
     }
     if homework_name is None:
