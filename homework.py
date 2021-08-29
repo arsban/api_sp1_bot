@@ -1,12 +1,15 @@
 import logging
-from logging.handlers import RotatingFileHandler
 import os
 import time
+from logging.handlers import RotatingFileHandler
+
+
 import requests
 import telegram
-
-
 from dotenv import load_dotenv
+
+load_dotenv()
+
 
 logging.basicConfig(
     level=logging.DEBUG,
@@ -15,17 +18,17 @@ logging.basicConfig(
     format='%(asctime)s, %(levelname)s, %(message)s, %(name)s',
     filemode='w',
 )
+
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
-handler = RotatingFileHandler(
+handler_rotate = RotatingFileHandler(
     'telegram_bot.log',
     maxBytes=50_000_000,
     backupCount=5,
 )
-logger.addHandler(handler)
-
-
-load_dotenv()
+handler_stream = logging.StreamHandler()
+logger.addHandler(handler_rotate)
+logger.addHandler(handler_stream)
 
 
 PRAKTIKUM_TOKEN = os.getenv('PRAKTIKUM_TOKEN')
@@ -50,13 +53,15 @@ def parse_homework_status(homework):
         'approved': 'Ревьюеру всё понравилось, работа зачтена!'
     }
     if homework_name is None:
-        logging.error('Работа не найдена.')
-        return 'Работа не найдена'
+        message: str = 'Работа не найдена.'
+        logging.error(message)  ## Альтернативный путь для бесстрашных -- поддержать Телеграм в своем логгере. © Алексей Пак  # noqa
+        send_message(message)   ## не уверен, что это то что вы имели ввиду, но я всю ночь просидел и лучше не смог придумать. (дайте подсказку)  # noqa
     if homework_status in statuses:
         verdict = statuses[homework_status]
         return f'У вас проверили работу "{homework_name}"!\n\n{verdict}'
-    logging.error('Неизвестный статус')
-    return 'Неизвестный статус'
+    message: str = 'Неизвестный статус'
+    logging.error(message)
+    send_message(message)
 
 
 def get_homeworks(current_timestamp):
@@ -65,21 +70,26 @@ def get_homeworks(current_timestamp):
     try:
         homework_statuses = requests.get(URL, headers=headers, params=payload)
     except requests.RequestException as error:
-        logging.error(f'Ошибка {error}', exc_info=True)
+        message: str = f'Ошибка {error}'
+        logging.error(message, exc_info=True)
+        send_message(message)
         return {}
-    except ValueError:
-        logging.exception('Невалидный формат')
+    except TypeError as error:   ## тут тоже есть подозрение что ошибся, не смог найти сломанный json чтобы проверить, все гуглил # noqa
+        message: str = f'Невалидный формат {error}'
+        logging.exception(message)
+        send_message(message)
         return {}
     return homework_statuses.json()
 
 
 def send_message(message):
-    return bot.send_message(CHAT_ID, message)
+    return bot.send_message(CHAT_ID, text=message)
 
 
 def main():
-    send_message('Бот запущен')
-    logging.info('Бот запущен')
+    message: str = 'Бот запущен'
+    logging.info(message)
+    send_message(message)
     current_timestamp = int(time.time())  # Начальное значение timestamp
 
     while True:
@@ -93,14 +103,16 @@ def main():
                 current_timestamp = new_homework.get('current_date')
                 time.sleep(SLEEP_TIME)
             except Exception as e:
-                send_message(f'Бот упал с ошибкой: {e}')
-                logging.exception(f'Бот упал с ошибкой: {e}')
+                message: str = f'Бот упал с ошибкой: {e}'
+                send_message(message)
+                logging.exception(message)
                 time.sleep(SLEEP_TIME_EXP)
                 continue
         except KeyboardInterrupt:
             break
-
-    logging.info('Бот отключён')
+    message: str = 'Бот отключён'
+    send_message(message)
+    logging.info(message)
 
 
 if __name__ == '__main__':
