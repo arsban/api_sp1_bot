@@ -54,8 +54,12 @@ def parse_homework_status(homework):
     }
     if homework_name is None:
         message: str = 'Работа не найдена.'
-        logging.error(message)  ## Альтернативный путь для бесстрашных -- поддержать Телеграм в своем логгере. © Алексей Пак  # noqa
-        send_message(message)   ## не уверен, что это то что вы имели ввиду, но я всю ночь просидел и лучше не смог придумать. (дайте подсказку)  # noqa
+        # Альтернативный путь для бесстрашных --
+        # поддержать Телеграм в своем логгере. © Алексей Пак
+        # не уверен, что это то что вы имели ввиду,
+        # но я всю ночь просидел и лучше не смог придумать. (дайте подсказку)
+        logging.error(message)
+        send_message(message)
     if homework_status in statuses:
         verdict = statuses[homework_status]
         return f'У вас проверили работу "{homework_name}"!\n\n{verdict}'
@@ -74,7 +78,9 @@ def get_homeworks(current_timestamp):
         logging.error(message, exc_info=True)
         send_message(message)
         return {}
-    except TypeError as error:   ## тут тоже есть подозрение что ошибся, не смог найти сломанный json чтобы проверить, все гуглил # noqa
+    except TypeError as error:
+        # тут тоже есть подозрение что ошибся,
+        # не смог найти сломанный json чтобы проверить, все гуглил
         message: str = f'Невалидный формат {error}'
         logging.exception(message)
         send_message(message)
