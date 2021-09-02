@@ -40,8 +40,6 @@ URL = 'https://praktikum.yandex.ru/api/user_api/homework_statuses/'
 SLEEP_TIME = (60 * 5)
 SLEEP_TIME_EXP = (5)
 
-LOG = "Log: "
-
 
 bot = telegram.Bot(token=TELEGRAM_TOKEN)
 
@@ -97,9 +95,10 @@ def main():
     while True:
         try:
             new_homework = get_homeworks(current_timestamp)
-            if new_homework.get('homeworks'):
+            homeworks = new_homework.get('homeworks')
+            if homeworks:
                 send_message(
-                    parse_homework_status(new_homework.get('homeworks')[0])
+                    parse_homework_status(homeworks[0])
                 )
             current_timestamp = new_homework.get('current_date')
             time.sleep(SLEEP_TIME)
